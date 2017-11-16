@@ -1,5 +1,4 @@
 <script>
-  import Analytics from '@/services/analytics'
   import Helpers from '@/services/helpers'
 
   export default {
@@ -12,7 +11,6 @@
     },
 
     mounted () {
-      Analytics.pageView('/info')
     }
   }
 </script>

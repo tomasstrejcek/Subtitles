@@ -6,6 +6,7 @@
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "pretest": "depcheck --ignores=babel-*,eslint-*,vue-*,electron-*,css-loader,devtron,*-loader,json-loader,node-sass,pug && npm run lint",
     "test": "mocha",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
@@ -56,11 +57,9 @@
     }
   },
   "dependencies": {
-    "addic7ed-subtitles-api": "^1.1.3",
     "electron-google-analytics": "0.0.24",
     "electron-squirrel-startup": "^1.0.0",
     "langs": "^2.0.0",
-    "opensubtitles-api": "^4.0.0",
     "superagent": "^3.8.1",
     "vue": "^2.5.3",
     "vue-router": "^2.5.3"
@@ -80,6 +79,7 @@
     "cross-env": "^5.0.0",
     "css-loader": "^0.28.4",
     "del": "^2.2.1",
+    "depcheck": "^0.6.8",
     "devtron": "^1.1.0",
     "electron": "^1.7.2",
     "electron-builder": "^19.10.0",

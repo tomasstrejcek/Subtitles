@@ -48,23 +48,23 @@ function search (str, languages, filter) {
 }
 
 function findSubtitles (fileName, body, languages, filter) {
-  let subs = [],
-    refererMatch = body.match(/\/show\/\d+/),
-    referer = refererMatch ? refererMatch[0] : '/show/1',
-    versionRegExp = /Version (.+?),([^]+?)<\/table/g,
-    versionMatch,
-    version,
-    subInfoRegExp = /class="language">([^]+?)<a[^]+?(% )?Completed[^]+?href="([^"]+?)"><strong>(?:most updated|Download)/g,
-    subInfoMatch,
-    lang,
-    langId,
-    notCompleted,
-    link,
-    distributionMatch,
-    distribution,
-    team,
-    hearingImpairedRegExp = /title="Hearing Impaired"/g,
-    hearingImpaired
+  let subs = []
+  let refererMatch = body.match(/\/show\/\d+/)
+  let referer = refererMatch ? refererMatch[0] : '/show/1'
+  let versionRegExp = /Version (.+?),([^]+?)<\/table/g
+  let versionMatch
+  let version
+  let subInfoRegExp = /class="language">([^]+?)<a[^]+?(% )?Completed[^]+?href="([^"]+?)"><strong>(?:most updated|Download)/g
+  let subInfoMatch
+  let lang
+  let langId
+  let notCompleted
+  let link
+  let distributionMatch
+  let distribution
+  let team
+  let hearingImpairedRegExp = /title="Hearing Impaired"/g
+  let hearingImpaired
 
   // Find subtitles HTML block parts
   // ===============================
@@ -81,7 +81,7 @@ function findSubtitles (fileName, body, languages, filter) {
       // Find lang iso code 2B
       // ---------------------
       langId = langs.where('name', lang.replace(/\(.+\)/g, '').trim())
-      langId = langId && langId['2B'] || lang.substr(0, 3).toLowerCase()
+      langId = (langId && langId['2B']) || lang.substr(0, 3).toLowerCase()
       link = subInfoMatch[3]
 
       if (languages && !~languages.indexOf(langId)) {

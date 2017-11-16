@@ -1,5 +1,4 @@
 <script>
-  import Analytics from '@/services/analytics'
   import Settings from '@/services/settings'
 
   export default {
