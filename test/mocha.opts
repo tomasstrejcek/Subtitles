@@ -1,0 +1,5 @@
+-t 10000
+--compilers js:babel-core/register
+--bail
+--check-leaks
+--recursive test
