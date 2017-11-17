@@ -1,6 +1,7 @@
 <script>
   import Videos from '@/services/videos'
   import Subtitles from '@/services/subtitles'
+  import path from 'path'
 
   export default {
     name: 'VideosList',
@@ -28,10 +29,27 @@
       }
       if (this.videos.length) {
         Promise.all(downloads).then(() => {
-          new Notification('Downloads completed', {
-            body: 'Enjoy your subs :) \n Number of dowloads: ' + this.videos.length
-            // TODO: fix icon path
-          })
+          const successCount = this.videos.filter((i) => i.status !== 'error').length
+          let body, options
+          const icon = path.join(__dirname, '/../../../resources/icons/icon.ico')
+          if (successCount) {
+            body = 'Enjoy your subtitles :)'
+            if (this.videos.length > 1) {
+              body += '\nNumber of dowloads: ' + this.videos.length
+            }
+            options = {
+              title: 'Downloads completed',
+              body,
+              icon
+            }
+          } else {
+            options = {
+              title: 'Downloads failed',
+              body: 'For some reason, downloads failed :(',
+              icon
+            }
+          }
+          new Notification(options.title, options)
         })
       }
     },
@@ -44,6 +62,8 @@
       downloadSub (id, name, path, size) {
         return Subtitles.get(id, name, path, size).then(() => {
           this.changeStatus(id, 'completed')
+        }).catch(() => {
+          this.changeStatus(id, 'error')
         })
       },
       changeStatus (id, status) {

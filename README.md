@@ -11,6 +11,10 @@ Subtitles ( fork of [Easysubs] by [Matias Tucci])
 ## Why?
 I like subtitles ;) Just think that OpenSubtitles srts are usually crap.
 
+### Subtitle compatibility list
+```
+http://www.sub-talk.net/topic/6521-subtitles-compatibility/
+```
 ## Download
 * [OS X and Windows]
 

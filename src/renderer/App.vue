@@ -3,7 +3,7 @@
   import Helpers from '@/services/helpers'
 
   export default {
-    name: 'Easysubs',
+    name: 'Subtitles',
 
     data () {
       return {

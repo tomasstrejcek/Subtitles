@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "pretest": "depcheck --ignores=babel-*,eslint-*,vue-*,electron-*,css-loader,devtron,*-loader,json-loader,node-sass,pug && npm run lint",
+    "precommit": "depcheck --ignores=babel-*,eslint-*,vue-*,electron-*,css-loader,devtron,*-loader,json-loader,node-sass,pug && npm run lint",
     "test": "mocha",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
@@ -26,7 +26,8 @@
       "output": "build"
     },
     "files": [
-      "dist/electron/**/*"
+      "dist/electron/**/*",
+      "resources/icons/**.*"
     ],
     "dmg": {
       "contents": [
@@ -44,20 +45,19 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "resources/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico",
+      "icon": "resources/icons/icon.ico",
       "target": [
-        "squirrel"
+        "portable"
       ]
     },
     "linux": {
-      "icon": "build/icons"
+      "icon": "resources/icons"
     }
   },
   "dependencies": {
-    "electron-google-analytics": "0.0.24",
     "electron-squirrel-startup": "^1.0.0",
     "langs": "^2.0.0",
     "superagent": "^3.8.1",
@@ -103,6 +103,7 @@
     "mocha": "^4.0.1",
     "multispinner": "^0.2.1",
     "node-sass": "^4.5.3",
+    "precommit": "^1.2.2",
     "pug": "^2.0.0-rc.2",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.18.1",

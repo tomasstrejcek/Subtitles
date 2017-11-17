@@ -25,19 +25,19 @@
       a.js-external-link(href='http://www.addic7ed.com') &nbsp;Addic7ed&nbsp;
       | in a very fast way.
     h5 Why?
+    p Why not.
+    h5 About me
     p Hi, my name is
       a.js-external-link(href='http://tomas-strejcek.cz/') &nbsp;Tomas&nbsp;
       | and I just don't like OpenSubtitles; Addic7ed ftw!
     .info-footer
-      a.js-external-link(href='https://github.com/matiastucci/easysubs')
-        span.icon.icon-github original app
-      a.js-external-link(href='https://twitter.com/TucciMatias')
-        span.icon.icon-twitter original author twitter
+      a.js-external-link(href='https://github.com/tomasstrejcek/Subtitles')
+        span.icon.icon-github
+      a.js-external-link(href='https://twitter.com/')
+        span.icon.icon-twitter
     .info-footer-small
-      a.js-external-link(href='https://github.com/matiastucci/easysubs')
-        span.icon.icon-github original app
-      a.js-external-link(href='https://twitter.com/TucciMatias')
-        span.icon.icon-twitter original author twitter
+      a.js-external-link(href='https://github.com/matiastucci/easysubs') &nbsp;original app&nbsp;
+      a.js-external-link(href='https://twitter.com/TucciMatias') &nbsp;author twitter&nbsp;
 </template>
 
 <style lang="scss">
@@ -55,6 +55,11 @@
         margin: 10px;
         cursor: pointer;
       }
+    }
+    .info-footer-small {
+      text-align: center;
+      border-top: 1px solid gray;
+      font-size: 12px;
     }
   }
 </style>

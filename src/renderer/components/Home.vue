@@ -62,7 +62,7 @@
           new Notification('Wrong format', {
             body: 'Please, drop a video',
             // TODO: fix icon path
-            icon: path.join(__dirname, '/dist/icons/icon.png')
+            icon: path.join(process.resourcesPath, '/icons/icon.png')
           })
           return
         }

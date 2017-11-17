@@ -6,11 +6,10 @@ const fs = require('fs')
 
 function get (id, filename, fpath, filesize) {
   console.log(arguments)
-  return find(id, filename, fpath, filesize).then((subs) => {
+  return find(id, nameWithoutExt(filename), fpath, filesize).then((subs) => {
     console.log(subs)
-    if (!subs && subs.results.length <= 0) {
-      this.changeStatus(id, 'error')
-      return
+    if (!subs || subs.results.length <= 0) {
+      throw new Error('download failed')
     }
     const subTargetName = getName(fpath)
     const sub = subs.results.shift()
@@ -29,11 +28,15 @@ function find (id, filename, fpath, filesize) {
   })
 }
 
-function getName (videoName) {
-  const n = videoName.lastIndexOf('.')
-  const videoNameWithoutExtension = n > -1 ? videoName.substr(0, n) : videoName
+function nameWithoutExt (fileName) {
+  const n = fileName.lastIndexOf('.')
+  return n > -1 ? fileName.substr(0, n) : fileName
+}
+
+function getName (fileName) {
+  fileName = nameWithoutExt(fileName)
   const subExt = Settings.get().subExtension.value
-  return `${videoNameWithoutExtension}.${subExt}`
+  return `${fileName}.${subExt}`
 }
 
 function download (id, sub, name) {

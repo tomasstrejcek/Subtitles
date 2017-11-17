@@ -1,8 +1,10 @@
 'use strict'
-
-import { app, BrowserWindow } from 'electron'
-import AutoUpdater from './auto-updater'
-if (require('electron-squirrel-startup')) app.quit()
+import path from 'path'
+import { app, BrowserWindow, Tray } from 'electron'
+// import AutoUpdater from './auto-updater'
+if (require('electron-squirrel-startup')) {
+  app.quit()
+}
 
 /**
  * Set `__static` path to static files in production
@@ -26,7 +28,7 @@ function createWindow () {
     height: 350,
     minHeight: 350,
     minWidth: 350,
-    title: 'Easysubs',
+    title: 'Subtitles 1.0.0',
     backgroundColor: '#eee'
   })
 
@@ -37,7 +39,18 @@ function createWindow () {
   })
 
   mainWindow.webContents.on('did-finish-load', () => {
-    AutoUpdater.init(mainWindow)
+    // AutoUpdater.init(mainWindow)
+  })
+  const tray = new Tray(path.join(__dirname, '/../../resources/icons/icon.ico'))
+  tray.setToolTip('Open Subtitles')
+  tray.on('click', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show()
+  })
+  mainWindow.on('show', () => {
+    tray.setHighlightMode('always')
+  })
+  mainWindow.on('hide', () => {
+    tray.setHighlightMode('never')
   })
 }
 

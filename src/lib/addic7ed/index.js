@@ -2,14 +2,59 @@ const superagent = require('superagent')
 const langs = require('langs')
 
 const addic7edURL = 'http://www.addic7ed.com'
+const episodeRegExp = /S([0-9]+)E([0-9]+)|([0-9])([0-9]{2})|([0-9]+)x([0-9]+)/i
+const versionRegExp = /Version (.+?),([^]+?)<\/table/g
+const subInfoRegExp = /class="language">([^]+?)<a[^]+?(% )?Completed[^]+?href="([^"]+?)"><strong>(?:most updated|Download)/g
+const hearingImpairedRegExp = /title="Hearing Impaired"/g
+const teamVersionRegExp = /.?(REPACK|PROPER|[XH]?264|XVID|DIVX|HDTV|480P|720P|1080P|2160P|WEB(.DL|.?RIP)?|WR|WS|DVDRIP|BRRIP|BDRIP|BLURAY)+/ig
+const distributionRegExp = /HDTV|WEB(.DL|.?RIP)?|WR|BRRIP|BDRIP|BLURAY|HI/i
+const compatibility = [
+  ['LOL', 'SYS', 'DIMENSION'],
+  ['XII', 'ASAP', 'IMMERSE'],
+  ['SVA', 'AVS', 'AVS-SVA'],
+  ['WEB-DL', 'AMZN-WEBRip']
+  // TODO: pairing for AFG,FUM reencodes
+]
 
 function parseName (str) {
-  const regexp = new RegExp(/S([0-9]+)E([0-9]+)/i)
-  const matches = str.match(regexp)
-  return {season: matches[1], episode: matches[2]}
+  const matches = str.match(episodeRegExp)
+  if (!matches) {
+    throw new Error('unkown format: ' + str)
+  }
+  let season, episode
+  if (matches[1] && matches[2]) { // S01E01
+    season = matches[1]
+    episode = matches[2]
+  }
+  if (matches[3] && matches[4]) { // 101
+    season = matches[3]
+    episode = matches[4]
+  }
+  if (matches[5] && matches[6]) { // 1x01
+    season = matches[5]
+    episode = matches[6]
+  }
+  episode = episode.padStart(2, '0')
+  season = season.padStart(2, '0')
+
+  let release
+  const stdParts = str.split('-')
+  if (stdParts.length === 2) {
+    release = stdParts[1]
+  } else {
+    const cleanName = str.replace(teamVersionRegExp, '').replace(distributionRegExp, '')
+    const longNameParts = str.split(/[.\-_]/).filter((i) => {
+      return i.length > 6
+    })
+    const removedBias = longNameParts.length ? cleanName.replace(new RegExp(longNameParts.join('|')), '') : cleanName
+    const nameParts = removedBias.replace(/\W/g, '').split(matches[0]) // /[^0-9a-z]/gi for _
+    release = nameParts[1]
+  }
+  return {season, episode, release}
 }
 
 function search (str, languages, filter) {
+  const ep = parseName(str)
   return superagent.get(addic7edURL + '/search.php').query({search: str})
     .set('User-Agent', 'Mozilla/5.0 (X11 Linux x86_64 rv:42.0) Gecko/20100101 Firefox/42.0')
     .then((response) => {
@@ -20,9 +65,6 @@ function search (str, languages, filter) {
           console.log('[Search] Addic7ed.com error: No result.')
           return []
         }
-
-        const ep = parseName(str)
-
         // Multiple results
         // ================
 
@@ -39,22 +81,20 @@ function search (str, languages, filter) {
 
         return superagent.get(addic7edURL + '/' + url)
           .then((response) => {
-            return findSubtitles(str, response, languages, filter)
+            return findSubtitles(str, ep, response, languages, filter)
           })
           .catch(searchError)
       }
-      return findSubtitles(str, response.text, languages, filter)
+      return findSubtitles(str, ep, response.text, languages, filter)
     }).catch(searchError)
 }
 
-function findSubtitles (fileName, body, languages, filter) {
+function findSubtitles (fileName, parsedFileName, body, languages, filter) {
   let subs = []
   let refererMatch = body.match(/\/show\/\d+/)
   let referer = refererMatch ? refererMatch[0] : '/show/1'
-  let versionRegExp = /Version (.+?),([^]+?)<\/table/g
   let versionMatch
   let version
-  let subInfoRegExp = /class="language">([^]+?)<a[^]+?(% )?Completed[^]+?href="([^"]+?)"><strong>(?:most updated|Download)/g
   let subInfoMatch
   let lang
   let langId
@@ -63,7 +103,6 @@ function findSubtitles (fileName, body, languages, filter) {
   let distributionMatch
   let distribution
   let team
-  let hearingImpairedRegExp = /title="Hearing Impaired"/g
   let hearingImpaired
 
   // Find subtitles HTML block parts
@@ -88,7 +127,7 @@ function findSubtitles (fileName, body, languages, filter) {
         continue
       }
 
-      distributionMatch = version.match(/HDTV|WEB(.DL|.?RIP)?|WR|BRRIP|BDRIP|BLURAY/i)
+      distributionMatch = version.match(distributionRegExp)
 
       distribution = distributionMatch
         ? distributionMatch[0].toUpperCase()
@@ -96,21 +135,11 @@ function findSubtitles (fileName, body, languages, filter) {
           .replace(/BRRIP|BDRIP|BLURAY/, 'BLURAY')
         : 'UNKNOWN'
 
-      team = version.replace(/.?(REPACK|PROPER|[XH].?264|HDTV|480P|720P|1080P|2160P|WEB(.DL|.?RIP)?|WR|BRRIP|BDRIP|BLURAY)+.?/g, '')
-        .trim().toUpperCase() || 'UNKNOWN'
+      team = version.replace(teamVersionRegExp, '').trim().toUpperCase() || 'UNKNOWN'
 
       hearingImpaired = versionMatch[2].match(hearingImpairedRegExp) || false
-      if (filter) {
-        if (!filter.hearingImpaired && hearingImpaired) {
-          continue
-        }
-      }
 
-      if (fileName.replace(/-/g, '.').indexOf(version) < 0) {
-        continue
-      }
-
-      subs.push({
+      const sub = {
         lang,
         langId,
         distribution,
@@ -119,7 +148,31 @@ function findSubtitles (fileName, body, languages, filter) {
         link,
         referer,
         hearingImpaired
-      })
+      }
+      console.log(sub)
+
+      if (filter) {
+        if (!filter.hearingImpaired && hearingImpaired) {
+          continue
+        }
+      }
+
+      if (fileName.replace(/-/g, '.').indexOf(version) >= 0 || fileName.indexOf(version) >= 0) {
+        subs.push(sub)
+        continue
+      }
+
+      for (let c of compatibility) {
+        console.log(parsedFileName.release, c, version, c.indexOf(parsedFileName.release))
+        if (c.indexOf(parsedFileName.release) >= 0) {
+          console.log('match', fileName.match(new RegExp(c.join('|')), 'i'))
+          const compatible = fileName.match(new RegExp(c.join('|')), 'i')
+          if (compatible) {
+            subs.push(sub)
+            break
+          }
+        }
+      }
     }
   }
 

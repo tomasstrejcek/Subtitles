@@ -6,7 +6,7 @@ const appVersion = require('../../../package.json').version
 let updateFeed = ''
 let initialized = false
 const platform = `${os.platform()}_${os.arch()}`
-const nutsURL = 'https://easysubs-autoupdater.herokuapp.com'
+const nutsURL = 'https://tomasstrejcek.github.io'
 
 if (os.platform() === 'darwin') {
   updateFeed = `${nutsURL}/update/${platform}/${appVersion}`
